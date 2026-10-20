@@ -697,3 +697,32 @@ function startBoardObserver() {
     }, 1000);
   }
 })();
+
+/* ==============================================================
+   HOW TO PLAY MODAL
+   ============================================================== */
+function showHowToPlay() {
+  const overlay = document.getElementById('how-to-play-overlay');
+  if (overlay) {
+    overlay.style.display = 'flex';
+    overlay.classList.add('open');
+  }
+}
+
+function closeHowToPlay(e) {
+  // Close only if clicking the overlay backdrop or the close button
+  if (e && e.target !== document.getElementById('how-to-play-overlay') && e.target.id !== 'htp-close') return;
+  const overlay = document.getElementById('how-to-play-overlay');
+  if (overlay) {
+    overlay.style.display = 'none';
+    overlay.classList.remove('open');
+  }
+}
+
+// Show on first ever visit
+(function() {
+  if (!localStorage.getItem('stardle_htp_seen')) {
+    setTimeout(showHowToPlay, 600);
+    localStorage.setItem('stardle_htp_seen', '1');
+  }
+})();

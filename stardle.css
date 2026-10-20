@@ -917,3 +917,135 @@ stats button#share:hover {
 *:focus {
   outline: none;
 }
+
+/* ============================================================
+   HOW TO PLAY MODAL
+   ============================================================ */
+#how-to-play-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--headerIconColor, #aaaaaa);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  border-radius: 6px;
+  transition: color 0.15s ease;
+}
+#how-to-play-btn:hover { color: #ffffff; }
+
+#how-to-play-overlay {
+  display: none;
+}
+#how-to-play-overlay.open {
+  display: flex !important;
+}
+
+#how-to-play-modal {
+  background: #0f1520;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 32px 28px 24px;
+  max-width: 440px;
+  width: 90%;
+  color: #ffffff;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  font-family: 'Outfit', sans-serif;
+}
+
+#htp-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  color: #aaaaaa;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+}
+#htp-close:hover { color: #ffffff; }
+
+.htp-hint-bulb {
+  display: inline-block;
+  vertical-align: -0.2em;
+  margin: 0 2px;
+  stroke: #cbd5e1;
+}
+
+#how-to-play-modal h2 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin: 0 0 4px;
+  letter-spacing: 0.01em;
+}
+.htp-subtitle {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  margin: 0 0 14px;
+}
+.htp-subtitle a { color: #94a3b8; text-decoration: underline; }
+.htp-desc {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  line-height: 1.55;
+  margin: 0 0 16px;
+}
+.htp-divider {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  margin: 16px 0;
+}
+#how-to-play-modal h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+#how-to-play-modal ul {
+  padding-left: 18px;
+  margin: 0 0 14px;
+}
+#how-to-play-modal li {
+  font-size: 0.88rem;
+  color: #cbd5e1;
+  margin-bottom: 4px;
+  line-height: 1.5;
+}
+.htp-examples { margin: 12px 0 0; }
+.htp-example-label {
+  font-weight: 700;
+  font-size: 0.88rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0 0 10px;
+}
+.htp-row {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+.htp-tile {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 4px;
+  color: #ffffff;
+}
+.htp-tile.green  { background: #22c55e; border-color: #22c55e; }
+.htp-tile.yellow { background: #eab308; border-color: #eab308; }
+.htp-tile.gray   { background: #334155; border-color: #334155; }
+#how-to-play-modal p { font-size: 0.88rem; color: #cbd5e1; margin: 0 0 14px; }
+.htp-footer { font-size: 0.8rem !important; color: #64748b !important; }
+.htp-footer a { color: #64748b; text-decoration: underline; }
