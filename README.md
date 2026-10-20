@@ -62,6 +62,4 @@ Upload the project root as static files. Ensure `astrophysics_wordle_song_links-
 - Concept, word list, and hints: Dhruva Astronomy Club.
 - Wordle is owned by its respective rights holders; Stardle is a themed variant for learning and fun, not an official Wordle product.
 
-## Repository
 
-[https://github.com/KrishnaNR15/Stardle](https://github.com/KrishnaNR15/Stardle)
