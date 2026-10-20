@@ -1,0 +1,919 @@
+/* ============================================================
+   STARDLE — Astronomy-Themed Minimalist Wordle for Dhruva Club
+   Clean, modern, NYT Wordle-inspired aesthetic
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+/* ============================================================
+   THEME VARIABLES — NYT Wordle palette + Deep Space
+   ============================================================ */
+:root {
+  --star-deep:          #0a0e18;
+  --text-primary:       #ffffff;
+  --text-secondary:     #cbd5e1;
+  --text-muted:         #8291a5;
+  --border-subtle:      rgba(255, 255, 255, 0.12);
+
+  /* Vibrant, bright, high-contrast tile colors */
+  --right-spot:         #22c55e;   /* Vibrant radiant emerald green */
+  --wrong-spot:         #eab308;   /* Bright warm amber gold */
+  --wrong-letter:       #334155;   /* Crisp slate-700 */
+  --tile-border:        rgba(255, 255, 255, 0.25);
+  --tile-active:        #94a3b8;
+
+  --key-default:        #475569;
+  --key-dark:           #334155;
+
+  --header-height:      56px;
+
+  /* Global game overrides */
+  --bgColor:            transparent;
+  --textColor:          var(--text-primary);
+  --keyBG:              var(--key-dark);
+  --borderColor:        var(--tile-border);
+  --wrongLetterColor:   var(--wrong-letter);
+  --rightSpotColor:     var(--right-spot);
+  --wrongSpotColor:     var(--wrong-spot);
+  --headerBorderColor:  var(--border-subtle);
+  --headerIconColor:    var(--text-secondary);
+  --headerHeight:       var(--header-height);
+  --overlayColor:       rgba(5, 8, 16, 0.75);
+  --winHistoryBarColor: var(--right-spot);
+  --winHistoryBarTextColor: #ffffff;
+  --winHistoryLabelColor: var(--text-muted);
+  --submittedTextColor: #ffffff;
+  --guessedBorderColor: var(--tile-active);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: url('stardle_bg.jpg') center center / cover no-repeat fixed;
+  background-color: var(--star-deep);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  position: relative;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+/* Atmospheric dark veil over user's Milky Way photograph */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: rgba(10, 14, 24, 0.74);
+  pointer-events: none;
+}
+
+/* Subtle twinkling canvas starfield on top of photograph */
+#starfield {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+  opacity: 0.16;
+}
+
+/* ============================================================
+   HEADER — Minimalist NYT Style
+   ============================================================ */
+body > header {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--header-height);
+  max-width: 100%;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: rgba(12, 16, 26, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Title — crisp, solid, authoritative */
+#stardle-title {
+  font-family: 'Outfit', -apple-system, sans-serif;
+  font-size: clamp(1.6rem, 3.8vw, 2.1rem);
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: #ffffff;
+  cursor: pointer;
+  user-select: none;
+  line-height: var(--header-height);
+  margin: 0;
+  text-align: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+/* Left: Hint Button Wrapper */
+#hint-btn-wrapper {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+}
+
+#hint-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: #f1f5f9;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+#hint-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+}
+
+#hint-btn svg {
+  stroke: #cbd5e1;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+/* Right: Stats Icon + Dhruva Logo */
+#header-right {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  position: relative !important;
+  z-index: 20 !important;
+}
+
+.header-icon,
+#stats-icon {
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+  left: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  fill: #cbd5e1 !important;
+  cursor: pointer !important;
+  border-radius: 6px !important;
+  padding: 5px !important;
+  transition: all 0.15s ease !important;
+  width: 24px !important;
+  height: 24px !important;
+  box-sizing: content-box !important;
+}
+
+#stats-icon:hover {
+  fill: #ffffff !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+#dhruva-logo-link {
+  display: flex !important;
+  align-items: center !important;
+  text-decoration: none !important;
+  line-height: 0 !important;
+}
+
+#dhruva-logo {
+  height: 34px !important;
+  width: 34px !important;
+  object-fit: cover !important;
+  border-radius: 6px !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  transition: all 0.15s ease !important;
+  display: block !important;
+}
+
+#dhruva-logo:hover {
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* ============================================================
+   HINT PANEL — Minimalist Popover
+   ============================================================ */
+#hint-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  width: 290px;
+  background: rgba(18, 22, 32, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 0;
+  overflow: hidden;
+  display: none;
+  z-index: 100;
+  animation: panel-drop 0.18s ease-out;
+}
+
+#hint-panel.open {
+  display: block;
+}
+
+@keyframes panel-drop {
+  from { opacity: 0; transform: scale(0.96) translateY(-6px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+#hint-panel-inner {
+  padding: 16px 18px 14px;
+}
+
+#hint-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+#hint-song-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+#hint-panel-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+#hint-panel-close-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+#hint-song-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 2px;
+  line-height: 1.3;
+}
+
+#hint-song-artist {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0 0 14px;
+}
+
+#hint-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.hint-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+  transition: all 0.15s ease;
+}
+
+.hint-link:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.hint-link svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+.spotify-link { color: #1db954; }
+.spotify-link svg { fill: #1db954; }
+.apple-link { color: #fc3c44; }
+.apple-link svg { fill: #fc3c44; }
+.youtube-link { color: #ff4e45; }
+.youtube-link svg { fill: #ff4e45; }
+
+#hint-disclaimer {
+  font-size: 0.7rem;
+  color: #64748b;
+  text-align: center;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ============================================================
+   MAIN & GAME BOARD — Clean NYT Wordle Style
+   ============================================================ */
+main {
+  z-index: 5;
+  border-top: none;
+}
+
+#board-container {
+  padding: 0 10px;
+}
+
+/* Boxes (Tiles) — Bright, high-contrast, crystal clear */
+box,
+row box {
+  background: transparent !important;
+  border: 2px solid var(--tile-border);
+  border-radius: 4px;
+  font-family: 'Outfit', -apple-system, sans-serif !important;
+  font-weight: 800 !important;
+  font-size: clamp(1.4rem, 4.5vh, 2.1rem);
+  color: #ffffff !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  user-select: none;
+  box-sizing: border-box;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+box.guessedLetter,
+row box.guessedLetter {
+  border-color: var(--tile-active) !important;
+  background: rgba(24, 32, 50, 0.9) !important;
+  color: #ffffff !important;
+}
+
+box.rightSpot,
+row box.rightSpot,
+.rightSpot {
+  background-color: #22c55e !important;
+  border-color: #22c55e !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.45) !important;
+}
+
+box.wrongSpot,
+row box.wrongSpot,
+.wrongSpot {
+  background-color: #eab308 !important;
+  border-color: #eab308 !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 0 16px rgba(234, 179, 8, 0.45) !important;
+}
+
+box.wrongLetter,
+row box.wrongLetter,
+.wrongLetter {
+  background-color: #334155 !important;
+  border-color: #334155 !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* ============================================================
+   KEYBOARD — NYT Flat Style with High-Contrast Keys
+   ============================================================ */
+#keyboard-container {
+  z-index: 6;
+}
+
+keyboard-row button {
+  background: #334155;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  font-family: 'Outfit', -apple-system, sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: background-color 0.12s ease, opacity 0.12s ease;
+}
+
+keyboard-row button:hover {
+  background: #475569;
+  filter: none !important;
+  transform: none !important;
+}
+
+keyboard-row button.rightSpot {
+  background: var(--right-spot) !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+keyboard-row button.wrongSpot {
+  background: var(--wrong-spot) !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+keyboard-row button.wrongLetter {
+  background: #0f172a !important;
+  color: #64748b !important;
+  opacity: 0.65 !important;
+}
+
+/* ============================================================
+   TOAST (NYT Minimalist Pill)
+   ============================================================ */
+toast-container {
+  position: fixed !important;
+  top: calc(var(--header-height, 56px) + 16px) !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: auto !important;
+  min-width: 140px !important;
+  max-width: 90vw !important;
+  height: auto !important;
+  overflow: visible !important;
+  z-index: 99999 !important;
+  pointer-events: none !important;
+}
+
+toast {
+  display: inline-block !important;
+  position: relative !important;
+  z-index: 99999 !important;
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 0.92rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  padding: 10px 22px !important;
+  background: #ffffff !important;
+  color: #121213 !important;
+  border: 1px solid #d3d6da !important;
+  border-radius: 4px !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45) !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+}
+
+/* ============================================================
+   STATS MODAL — Minimalist NYT Layout
+   ============================================================ */
+stats-container {
+  z-index: 50 !important;
+}
+
+stats {
+  background: rgba(18, 22, 32, 0.98) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  color: var(--text-primary) !important;
+}
+
+stats h2 {
+  color: #ffffff !important;
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 1.15rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+}
+
+#statList {
+  background: transparent !important;
+}
+
+stat {
+  color: #ffffff !important;
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 2.2rem !important;
+  font-weight: 800 !important;
+}
+
+.statName {
+  color: var(--text-muted) !important;
+  font-size: 0.72rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+bar {
+  background-color: var(--right-spot) !important;
+  border-radius: 2px !important;
+}
+
+#closeIcon {
+  fill: var(--text-muted) !important;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+#closeIcon:hover {
+  fill: #ffffff !important;
+}
+
+/* Stats Footer */
+stats footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 18px 24px 20px !important;
+  margin-top: 14px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  gap: 16px !important;
+  border-top: 1px solid var(--border-subtle) !important;
+}
+
+#countdown-wrapper {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  text-align: left !important;
+  flex-shrink: 0 !important;
+}
+
+#countdown-label {
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.14em !important;
+  color: var(--text-muted) !important;
+  text-transform: uppercase !important;
+  margin-bottom: 2px !important;
+}
+
+#countdown-timer {
+  font-family: 'Outfit', monospace !important;
+  font-size: 1.4rem !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  letter-spacing: 0.05em !important;
+  line-height: 1.2 !important;
+}
+
+#stats-btns-group {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-shrink: 0 !important;
+}
+
+stats button {
+  width: auto !important;
+  min-width: unset !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+stats button#share {
+  background: var(--right-spot) !important;
+  border: none !important;
+  color: #ffffff !important;
+  border-radius: 6px !important;
+  padding: 10px 22px !important;
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  box-shadow: none !important;
+  transition: background-color 0.15s ease !important;
+}
+
+stats button#share:hover {
+  background: #467a42 !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+#stats-word-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  color: #ffffff !important;
+  border-radius: 6px !important;
+  padding: 10px 18px !important;
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+#stats-word-btn:hover {
+  background: rgba(255, 255, 255, 0.16) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  transform: none !important;
+}
+
+/* ============================================================
+   CELESTIAL DISCOVERY MODAL — Minimalist Post-Game Reveal
+   ============================================================ */
+#word-popup-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(5, 8, 16, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+
+#word-popup-overlay[aria-hidden="false"] {
+  display: flex;
+}
+
+#word-popup {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 440px;
+  background: rgba(18, 22, 32, 0.98);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9);
+  padding: 24px 22px 20px;
+  color: var(--text-primary);
+  box-sizing: border-box;
+  animation: modal-pop 0.22s ease-out forwards;
+}
+
+@keyframes modal-pop {
+  0%   { opacity: 0; transform: scale(0.96) translateY(10px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+#popup-close-x {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+#popup-close-x:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.popup-badge {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+#popup-word-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 2.1rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  margin: 0 0 12px;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+#popup-explanation-box {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+
+#popup-explanation {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0;
+  text-align: left;
+}
+
+#popup-article-link {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #93c5fd;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 6px 12px;
+  margin-bottom: 16px;
+  transition: all 0.15s ease;
+}
+
+#popup-article-link:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+#popup-song-section {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+}
+
+.popup-song-tag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+#popup-song-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.popup-song-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.popup-music-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e2e8f0;
+  transition: all 0.15s ease;
+}
+
+.popup-music-link:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+.popup-music-link svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.popup-music-link.spotify svg { fill: #1db954; }
+.popup-music-link.apple svg { fill: #fc3c44; }
+.popup-music-link.youtube svg { fill: #ff4e45; }
+
+.popup-actions {
+  display: flex;
+  gap: 10px;
+}
+
+#popup-stats-btn {
+  flex: 1;
+  padding: 10px 16px;
+  background: var(--right-spot);
+  border: none;
+  border-radius: 6px;
+  color: #ffffff;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+#popup-stats-btn:hover {
+  background: #467a42;
+}
+
+#popup-close-btn {
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: #e2e8f0;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+#popup-close-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
+/* ============================================================
+   BLUR effect — Prevent game board from looking pale or shadowed
+   ============================================================ */
+.blur {
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 480px) {
+  #stardle-title {
+    font-size: 1.4rem;
+    letter-spacing: 0.14em;
+  }
+
+  #dhruva-logo {
+    height: 30px;
+    width: 30px;
+  }
+
+  #hint-panel {
+    width: 260px;
+  }
+
+  #word-popup {
+    padding: 20px 16px 16px;
+  }
+}
+
+*:focus {
+  outline: none;
+}

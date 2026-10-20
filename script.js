@@ -279,7 +279,23 @@ async function paint(oldGameState, newGameState) {
     tiles[idx].innerText = letter ?? '';
     tiles[idx].classList = '';
     tiles[idx].classList.add(state);
-    tiles[idx].style = {};
+    if (state == 'rightSpot') {
+      tiles[idx].style.backgroundColor = '#22c55e';
+      tiles[idx].style.color = '#ffffff';
+      tiles[idx].style.borderColor = '#22c55e';
+    } else if (state == 'wrongSpot') {
+      tiles[idx].style.backgroundColor = '#eab308';
+      tiles[idx].style.color = '#ffffff';
+      tiles[idx].style.borderColor = '#eab308';
+    } else if (state == 'wrongLetter') {
+      tiles[idx].style.backgroundColor = '#334155';
+      tiles[idx].style.color = '#ffffff';
+      tiles[idx].style.borderColor = '#334155';
+    } else {
+      tiles[idx].style.backgroundColor = '';
+      tiles[idx].style.color = '';
+      tiles[idx].style.borderColor = '';
+    }
 
     if (newGameState.pointer == 0)
       $$('keyboard-row button').forEach((key) => {
@@ -426,11 +442,11 @@ function getValidityStyles(rowNum = activeRow(), idx, gameState = State) {
   return stylesMask.map((style, idx) => {
     const styles = {
       borderColor: 'transparent',
-      color: `var(--submittedTextColor)`,
-      backgroundColor: 'var(--wrongLetterColor)',
+      color: '#ffffff',
+      backgroundColor: '#334155',
     };
-    if (style == 'rightSpot') styles.backgroundColor = 'var(--rightSpotColor)';
-    if (style == 'wrongSpot') styles.backgroundColor = 'var(--wrongSpotColor)';
+    if (style == 'rightSpot') styles.backgroundColor = '#22c55e';
+    if (style == 'wrongSpot') styles.backgroundColor = '#eab308';
     return styles;
   })[idx];
 }

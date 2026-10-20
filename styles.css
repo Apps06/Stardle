@@ -33,13 +33,13 @@
   --overlayColor: #ffffffaa;
 
   /* Tile Colors */
-  --submittedTextColor: white;
-  --guessedBorderColor: grey;
-  --wrongLetterColor: #787c7e;
-  --rightSpotColor: #6aaa64;
-  --wrongSpotColor: #c9b458;
+  --submittedTextColor: #ffffff;
+  --guessedBorderColor: #94a3b8;
+  --wrongLetterColor: #334155;
+  --rightSpotColor: #22c55e;
+  --wrongSpotColor: #eab308;
 
-  --headerHeight: 80px;
+  --headerHeight: 72px;
   --headerBorderColor: var(--gray-2);
 
   --headerIconColor: var(--gray-4);
@@ -70,14 +70,15 @@
 }
 
 :root.dark {
-    --bgColor: #121213;
-    --overlayColor:#121213aa;
-    --textColor: #d7dadc;
-    --keyBG: #818384;
-    --borderColor: #3a3a3c;
-    --wrongLetterColor: #3a3a3c;
-    --wrongSpotColor: #b59f3b;
-    --rightSpotColor: #538d4e;
+    --bgColor: #0a0e18;
+    --overlayColor: rgba(5, 8, 16, 0.75);
+    --textColor: #ffffff;
+    --keyBG: #334155;
+    --borderColor: rgba(255, 255, 255, 0.25);
+    --wrongLetterColor: #334155;
+    --wrongSpotColor: #eab308;
+    --rightSpotColor: #22c55e;
+    --submittedTextColor: #ffffff;
     --modalShadow: 0 0 50px 5px #1d1d1d, 5px 8px 16px 0px #0c0c0c;
 
     --headerBorderColor: var(--gray-10);
@@ -101,14 +102,15 @@
 
 @media (prefers-color-scheme: dark) {
   :root, :root.dark {
-    --bgColor: #121213;
-    --overlayColor:#121213aa;
-    --textColor: #d7dadc;
-    --keyBG: #818384;
-    --borderColor: #3a3a3c;
-    --wrongLetterColor: #3a3a3c;
-    --wrongSpotColor: #b59f3b;
-    --rightSpotColor: #538d4e;
+    --bgColor: #0a0e18;
+    --overlayColor: rgba(5, 8, 16, 0.75);
+    --textColor: #ffffff;
+    --keyBG: #334155;
+    --borderColor: rgba(255, 255, 255, 0.25);
+    --wrongLetterColor: #334155;
+    --wrongSpotColor: #eab308;
+    --rightSpotColor: #22c55e;
+    --submittedTextColor: #ffffff;
     --modalShadow: 0 0 50px 5px #1d1d1d, 5px 8px 16px 0px #0c0c0c;
 
     --headerBorderColor: var(--gray-10);
@@ -177,16 +179,14 @@ h1 {
 }
 
 .header-icon {
-  display: inline;
-  justify-self: flex-end;
-  position: absolute;
-  top: 23px;
+  display: inline-flex;
+  position: static;
   cursor: pointer;
   padding: 5px;
-  border-radius: 100%;
+  border-radius: 6px;
   box-sizing: content-box;
   transition: .2s all;
-  fill: var(--headerIconColor)
+  fill: var(--headerIconColor);
 }
 
 .header-icon:hover {
@@ -194,11 +194,11 @@ h1 {
 }
 
 #stats-icon {
-  right: 12%;
+  position: static;
 }
 
 #github-icon {
-  left: 12%;
+  position: static;
 }
 
 #game {
@@ -272,21 +272,21 @@ box {
 
 
 .wrongLetter {
-  color: var(--submittedTextColor);
-  background-color: var(--wrongLetterColor);
-  border-color: transparent;
+  color: #ffffff !important;
+  background-color: #334155 !important;
+  border-color: transparent !important;
 }
 
 .wrongSpot {
-  color: var(--submittedTextColor);
-  background-color: var(--wrongSpotColor);
-  border-color: transparent;
+  color: #ffffff !important;
+  background-color: #eab308 !important;
+  border-color: transparent !important;
 }
 
 .rightSpot {
-  color: var(--submittedTextColor);
-  background-color: var(--rightSpotColor);
-  border-color: transparent;
+  color: #ffffff !important;
+  background-color: #22c55e !important;
+  border-color: transparent !important;
 }
 @keyframes drop-in {
   from {
@@ -492,7 +492,7 @@ stat {
 }
 
 .blur {
-  filter: blur(3px)
+  filter: none;
 }
 
 
