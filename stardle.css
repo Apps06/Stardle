@@ -935,6 +935,21 @@ stats button#share:hover {
 }
 #how-to-play-btn:hover { color: #ffffff; }
 
+.game-link {
+  color: var(--headerIconColor, #aaaaaa);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 5px 8px;
+  border-radius: 6px;
+  line-height: 1.2;
+}
+
+.game-link:hover {
+  color: #ffffff;
+}
+
 #how-to-play-overlay {
   display: none;
 }
