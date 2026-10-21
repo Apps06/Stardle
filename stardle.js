@@ -444,6 +444,8 @@ function startMidnightCountdown() {
       el.textContent = formatCountdown(ms);
       if (ms <= 1000) {
         // Next midnight IST arrived! Reload for the new day
+        // Clear stored date and reload for the new day
+        try { localStorage.removeItem('stardleLastDate'); } catch(e) { console.warn('[Stardle] Could not remove stardleLastDate:', e); }
         setTimeout(() => location.reload(), 1500);
       }
     }
