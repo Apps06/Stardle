@@ -1064,3 +1064,138 @@ stats button#share:hover {
 #how-to-play-modal p { font-size: 0.88rem; color: #cbd5e1; margin: 0 0 14px; }
 .htp-footer { font-size: 0.8rem !important; color: #64748b !important; }
 .htp-footer a { color: #64748b; text-decoration: underline; }
+
+/* ============================================================
+   PHONE LAYOUT
+   Keep the board, keyboard, and dialogs usable within the changing
+   viewport height of mobile browsers.
+   ============================================================ */
+@media (max-width: 600px) {
+  html,
+  body {
+    min-height: 100%;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  body > header {
+    padding: 0 max(10px, env(safe-area-inset-right)) 0 max(10px, env(safe-area-inset-left));
+  }
+
+  main {
+    height: calc(100dvh - var(--header-height));
+    min-height: 0;
+    padding-top: 10px;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    gap: 8px;
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+
+  #board-container {
+    min-height: 0;
+    align-items: center;
+    padding: 0 12px;
+  }
+
+  #game-board {
+    width: auto;
+    height: min(calc(120vw - 38px), calc(100dvh - 250px));
+    max-width: calc(100vw - 32px);
+    max-height: none;
+  }
+
+  #keyboard-container {
+    align-items: flex-end;
+  }
+
+  #keyboard {
+    padding: 6px 4px 0;
+  }
+
+  keyboard-row {
+    margin-bottom: 5px;
+  }
+
+  keyboard-row button {
+    min-height: 48px;
+    padding: 10px 0;
+    margin: 0 2px;
+    font-size: 0.85rem;
+  }
+
+  #enter,
+  #backspace {
+    min-width: 52px;
+  }
+
+  stats-container {
+    position: fixed;
+    inset: 0;
+    width: auto;
+    height: auto;
+    padding: 16px;
+    overflow-y: auto;
+  }
+
+  stats {
+    width: min(100%, 500px);
+    height: auto;
+    min-height: min-content;
+    max-height: none;
+    margin: auto;
+  }
+
+  stats footer {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  #countdown-wrapper {
+    align-items: center;
+    text-align: center;
+  }
+
+  #how-to-play-modal,
+  #word-popup {
+    width: 100%;
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  #hint-btn {
+    padding: 7px 9px;
+  }
+
+  #hint-btn span,
+  .game-link {
+    display: none;
+  }
+
+  #header-right {
+    gap: 3px !important;
+  }
+
+  #stardle-title {
+    font-size: 1.2rem;
+    letter-spacing: 0.1em;
+  }
+
+  .popup-song-links {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-height: 700px) and (max-width: 600px) {
+  main {
+    padding-top: 4px;
+    gap: 2px;
+  }
+
+  keyboard-row button {
+    min-height: 42px;
+    padding: 7px 0;
+  }
+}
