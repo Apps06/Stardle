@@ -686,17 +686,6 @@ function setup() {
     possibleWords = e.data.possibleWordsMap;
   };
   
-  document.addEventListener('touchmove', e => {
-    e.preventDefault()
-    e.stopImmediatePropagation()
-  
-    window.scroll({
-      top: 0, 
-      left: 0, 
-      behavior: 'smooth' 
-    })
-
-  }, {passive: false})
 
   return possibleWordsWorker;
 }
