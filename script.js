@@ -4,7 +4,15 @@ const possibleWordsWorker = setup();
 // GAME STATE:
 // --------------------------------------------------------
 
-const localStorageGameState = () => JSON.parse(localStorage.getItem('gameState'));
+const localStorageGameState = () => {
+  try {
+    const savedState = localStorage.getItem('gameState');
+    return savedState ? JSON.parse(savedState) : null;
+  } catch (e) {
+    console.warn('Could not load the saved game state:', e);
+    return null;
+  }
+};
 
 const defaultGameState = {
   wordle: '',
@@ -144,6 +152,11 @@ function check() {
 }
 
 function setStats() {
+  if (typeof window.renderStardleStats === 'function') {
+    window.renderStardleStats();
+    return State;
+  }
+
   return render(
     ({ stats, checked, winHistory, gameHistory }) => {
       stats.gamesPlayed = gameHistory.length;
@@ -193,6 +206,7 @@ function won() {
     [
       animateSumbittedRow,
       (oldGameState, newGameState) => {
+        window.recordStardleGameResult?.({ won: true, guesses: winningRow + 1 });
         const randomPraise = generateWinningMessage(winningRow);
         showToast(randomPraise, 2.5, () => showStatsModal(oldGameState, newGameState));
       },
@@ -211,7 +225,10 @@ function lost() {
     },
     [
       animateSumbittedRow,
-      ({ wordle }) => showToast(wordle, 2.5, showStatsModal, true),
+      ({ wordle }) => {
+        window.recordStardleGameResult?.({ won: false, guesses: 6 });
+        showToast(wordle, 2.5, showStatsModal, true);
+      },
     ]
   );
 }
@@ -399,8 +416,11 @@ async function showGraph(_, { winHistory }) {
 
 async function persist(_, newGameState) {
   if (!newGameState.persist) return;
-  localStorage.clear();
-  localStorage.setItem('gameState', JSON.stringify(newGameState));
+  try {
+    localStorage.setItem('gameState', JSON.stringify(newGameState));
+  } catch (e) {
+    console.warn('Could not save the game state:', e);
+  }
 }
 
 function badWord(msg = 'Not In Word List') {
