@@ -1222,13 +1222,7 @@ bar-container.latest-win bar {
     touch-action: pan-y;
   }
 
-  #how-to-play-modal {
-    box-sizing: border-box;
-    flex: 0 0 auto;
-    max-height: none;
-    overflow: visible;
-    margin: 0 auto;
-  }
+
 }
 
 @media (max-width: 480px) {
