@@ -219,6 +219,197 @@ function getISTDateString() {
   return istDate.toISOString().slice(0, 10);
 }
 
+/* ==============================================================
+   3a. PERSISTENT PLAYER STATISTICS
+   ============================================================== */
+
+const STARDLE_STATS_KEY = 'stardle:stats:v1';
+
+function safeStorageGet(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch (e) {
+    console.warn(`[Stardle] Could not read ${key}:`, e);
+    return null;
+  }
+}
+
+function safeStorageSet(key, value) {
+  try {
+    localStorage.setItem(key, value);
+    return true;
+  } catch (e) {
+    console.warn(`[Stardle] Could not save ${key}:`, e);
+    return false;
+  }
+}
+
+function createDefaultStats() {
+  return {
+    version: 1,
+    gamesPlayed: 0,
+    gamesWon: 0,
+    currentStreak: 0,
+    maxStreak: 0,
+    guessDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 },
+    lastPlayedPuzzle: null,
+    lastWonPuzzle: null,
+    lastResult: null,
+  };
+}
+
+let statsSession = createDefaultStats();
+
+function nonNegativeInteger(value) {
+  return Number.isInteger(value) && value >= 0 ? value : 0;
+}
+
+function normalizeStats(value) {
+  const defaults = createDefaultStats();
+  if (!value || typeof value !== 'object') return defaults;
+
+  const distribution = value.guessDistribution && typeof value.guessDistribution === 'object'
+    ? value.guessDistribution
+    : {};
+  const lastResult = value.lastResult && typeof value.lastResult === 'object'
+    && typeof value.lastResult.puzzle === 'string'
+    && typeof value.lastResult.won === 'boolean'
+    && Number.isInteger(value.lastResult.guesses)
+    && value.lastResult.guesses >= 1
+    && value.lastResult.guesses <= 6
+    ? { ...value.lastResult }
+    : null;
+
+  const gamesPlayed = nonNegativeInteger(value.gamesPlayed);
+
+  return {
+    version: 1,
+    gamesPlayed,
+    gamesWon: Math.min(nonNegativeInteger(value.gamesWon), gamesPlayed),
+    currentStreak: nonNegativeInteger(value.currentStreak),
+    maxStreak: nonNegativeInteger(value.maxStreak),
+    guessDistribution: {
+      1: nonNegativeInteger(distribution[1]),
+      2: nonNegativeInteger(distribution[2]),
+      3: nonNegativeInteger(distribution[3]),
+      4: nonNegativeInteger(distribution[4]),
+      5: nonNegativeInteger(distribution[5]),
+      6: nonNegativeInteger(distribution[6]),
+    },
+    lastPlayedPuzzle: typeof value.lastPlayedPuzzle === 'string' ? value.lastPlayedPuzzle : null,
+    lastWonPuzzle: typeof value.lastWonPuzzle === 'string' ? value.lastWonPuzzle : null,
+    lastResult,
+  };
+}
+
+function loadStats() {
+  try {
+    const stored = safeStorageGet(STARDLE_STATS_KEY);
+    statsSession = normalizeStats(stored ? JSON.parse(stored) : statsSession);
+  } catch (e) {
+    console.warn('[Stardle] Could not load saved statistics:', e);
+  }
+  return statsSession;
+}
+
+function saveStats(stats) {
+  statsSession = normalizeStats(stats);
+  try {
+    safeStorageSet(STARDLE_STATS_KEY, JSON.stringify(statsSession));
+  } catch (e) {
+    console.warn('[Stardle] Could not save statistics:', e);
+  }
+  return statsSession;
+}
+
+function isPreviousPuzzle(previousPuzzle, currentPuzzle) {
+  if (typeof previousPuzzle !== 'string' || typeof currentPuzzle !== 'string') return false;
+  const previous = Date.parse(`${previousPuzzle}T00:00:00Z`);
+  const current = Date.parse(`${currentPuzzle}T00:00:00Z`);
+  return Number.isFinite(previous) && Number.isFinite(current)
+    && current - previous === 24 * 60 * 60 * 1000;
+}
+
+function getDisplayStats(stats, today = getISTDateString()) {
+  const displayStats = normalizeStats(stats);
+  if (displayStats.lastWonPuzzle !== today && !isPreviousPuzzle(displayStats.lastWonPuzzle, today)) {
+    displayStats.currentStreak = 0;
+  }
+  return displayStats;
+}
+
+function recordGameResult({ won, guesses }) {
+  const puzzle = getISTDateString();
+  const stats = loadStats();
+  if (stats.lastPlayedPuzzle === puzzle) return renderStats(stats);
+
+  stats.gamesPlayed += 1;
+  if (won) {
+    stats.gamesWon += 1;
+    stats.guessDistribution[guesses] += 1;
+    stats.currentStreak = isPreviousPuzzle(stats.lastWonPuzzle, puzzle)
+      ? stats.currentStreak + 1
+      : 1;
+    stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
+    stats.lastWonPuzzle = puzzle;
+  } else {
+    stats.currentStreak = 0;
+  }
+
+  stats.lastPlayedPuzzle = puzzle;
+  stats.lastResult = { puzzle, won, guesses };
+  saveStats(stats);
+  return renderStats(stats);
+}
+
+function renderStats(savedStats = loadStats()) {
+  const stats = getDisplayStats(savedStats);
+  const winPercent = stats.gamesPlayed
+    ? Math.round((stats.gamesWon / stats.gamesPlayed) * 100)
+    : 0;
+
+  const values = {
+    gamesPlayed: stats.gamesPlayed,
+    winPercent,
+    currentStreak: stats.currentStreak,
+    maxStreak: stats.maxStreak,
+  };
+  Object.entries(values).forEach(([id, value]) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = String(value);
+  });
+
+  const noHistory = document.querySelector('no-history');
+  const graph = document.querySelector('graph');
+  const heading = document.querySelector('stats h3');
+  const maxCount = Math.max(...Object.values(stats.guessDistribution), 0);
+  const hasWins = stats.gamesWon > 0;
+
+  if (noHistory) noHistory.style.display = hasWins ? 'none' : 'flex';
+  if (graph) graph.style.display = hasWins ? 'grid' : 'none';
+  if (heading) heading.style.display = hasWins ? 'block' : 'none';
+
+  if (hasWins) {
+    for (let guess = 1; guess <= 6; guess++) {
+      const bar = document.getElementById(`bar-${guess}`);
+      if (!bar) continue;
+      const count = stats.guessDistribution[guess];
+      const container = bar.closest('bar-container');
+      const barText = bar.querySelector('bar-text');
+      const isLatestWin = stats.lastResult?.won && stats.lastResult.guesses === guess;
+      bar.style.width = `${Math.max(8, Math.round((count / maxCount) * 100))}%`;
+      bar.style.height = '28px';
+      if (barText) barText.textContent = String(count);
+      container?.classList.toggle('latest-win', isLatestWin);
+    }
+  }
+  return stats;
+}
+
+window.loadStardleStats = loadStats;
+window.renderStardleStats = renderStats;
+window.recordStardleGameResult = recordGameResult;
+
 /**
  * Return ms remaining until the next 12:00 AM (midnight) IST.
  */
@@ -297,15 +488,20 @@ function injectTodaysWord() {
   }
 
   const todayIST = getISTDateString();
-  const lastPlayedDate = localStorage.getItem('stardleLastDate');
+  const lastPlayedDate = safeStorageGet('stardleLastDate');
 
   const saved = (() => {
-    try { return JSON.parse(localStorage.getItem('gameState')); } catch(e) { return null; }
+    try {
+      const savedState = safeStorageGet('gameState');
+      return savedState ? JSON.parse(savedState) : null;
+    } catch(e) {
+      return null;
+    }
   })();
 
   // If today is a new calendar day in IST:
   if (lastPlayedDate && lastPlayedDate !== todayIST) {
-    localStorage.setItem('stardleLastDate', todayIST);
+    safeStorageSet('stardleLastDate', todayIST);
     // Reset board for today's new word while keeping win stats & history
     if (typeof defaultGameState !== 'undefined' && typeof defaultUserState !== 'undefined') {
       const freshState = {
@@ -319,7 +515,7 @@ function injectTodaysWord() {
       if (typeof State !== 'undefined') {
         State = { ...State, ...freshState };
       }
-      localStorage.setItem('gameState', JSON.stringify(freshState));
+      safeStorageSet('gameState', JSON.stringify(freshState));
       [...document.querySelectorAll('keyboard-row button')].forEach(k => k.removeAttribute('style'));
     }
     return;
@@ -327,7 +523,7 @@ function injectTodaysWord() {
 
   // Record today's IST date if not recorded yet
   if (!lastPlayedDate) {
-    localStorage.setItem('stardleLastDate', todayIST);
+    safeStorageSet('stardleLastDate', todayIST);
   }
 
   // If already playing or completed today's word on this same day, keep it as-is
@@ -341,7 +537,7 @@ function injectTodaysWord() {
     if (typeof persist === 'function') {
       persist(null, State);
     } else {
-      localStorage.setItem('gameState', JSON.stringify(State));
+      safeStorageSet('gameState', JSON.stringify(State));
     }
   }
 }
@@ -721,8 +917,8 @@ function closeHowToPlay(e) {
 
 // Show on first ever visit
 (function() {
-  if (!localStorage.getItem('stardle_htp_seen')) {
+  if (!safeStorageGet('stardle_htp_seen')) {
     setTimeout(showHowToPlay, 600);
-    localStorage.setItem('stardle_htp_seen', '1');
+    safeStorageSet('stardle_htp_seen', '1');
   }
 })();
