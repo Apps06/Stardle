@@ -655,6 +655,14 @@ function showWordPopup() {
   const entry = getTodayWordData();
   if (!entry) return;
 
+  // Ensure the game has been completed before revealing the word (won or all rows checked)
+  if (!(State?.won || (State?.checked && State.checked[5] === true))) {
+    if (typeof showToast === 'function') {
+      showToast('Finish the game first!', 2, null, null, 'z-index:4');
+    }
+    return;
+  }
+
   const word = entry.word;
 
   // Word title
@@ -712,7 +720,6 @@ function showWordPopup() {
     popup.style.animation = '';
   }
 }
-
 function closeWordPopup() {
   const overlay = document.getElementById('word-popup-overlay');
   if (overlay) {
