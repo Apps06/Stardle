@@ -460,7 +460,7 @@ function startMidnightCountdown() {
  */
 function getISTDayIndex(listLength) {
   if (!listLength) return 0;
-  const epoch = new Date('2024-01-01T00:00:00Z').getTime() + IST_OFFSET_MS;
+  const epoch = new Date('2024-01-01T00:00:00Z').getTime();
   const nowIST = Date.now() + IST_OFFSET_MS;
   const daysSinceEpoch = Math.floor((nowIST - epoch) / (24 * 60 * 60 * 1000));
   return ((daysSinceEpoch % listLength) + listLength) % listLength;
