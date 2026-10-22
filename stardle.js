@@ -444,6 +444,8 @@ function startMidnightCountdown() {
       el.textContent = formatCountdown(ms);
       if (ms <= 1000) {
         // Next midnight IST arrived! Reload for the new day
+        // Clear stored date and reload for the new day
+        try { localStorage.removeItem('stardleLastDate'); } catch(e) { console.warn('[Stardle] Could not remove stardleLastDate:', e); }
         setTimeout(() => location.reload(), 1500);
       }
     }
@@ -458,7 +460,7 @@ function startMidnightCountdown() {
  */
 function getISTDayIndex(listLength) {
   if (!listLength) return 0;
-  const epoch = new Date('2024-01-01T00:00:00Z').getTime() + IST_OFFSET_MS;
+  const epoch = new Date('2024-01-01T00:00:00Z').getTime();
   const nowIST = Date.now() + IST_OFFSET_MS;
   const daysSinceEpoch = Math.floor((nowIST - epoch) / (24 * 60 * 60 * 1000));
   return ((daysSinceEpoch % listLength) + listLength) % listLength;
@@ -655,6 +657,14 @@ function showWordPopup() {
   const entry = getTodayWordData();
   if (!entry) return;
 
+  // Ensure the game has been completed before revealing the word (won or all rows checked)
+  if (!(State?.won || (State?.checked && State.checked[5] === true))) {
+    if (typeof showToast === 'function') {
+      showToast('Finish the game first!', 2, null, null, 'z-index:4');
+    }
+    return;
+  }
+
   const word = entry.word;
 
   // Word title
@@ -712,7 +722,6 @@ function showWordPopup() {
     popup.style.animation = '';
   }
 }
-
 function closeWordPopup() {
   const overlay = document.getElementById('word-popup-overlay');
   if (overlay) {
